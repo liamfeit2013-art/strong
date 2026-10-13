@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Pulse Fitness</title>
+  <meta name="theme-color" content="#09090b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- Web App Manifest for Add to Home Screen -->
+  <link rel="manifest" id="manifest-placeholder">
+
+  <style>
+    /* Native iOS/Android System Reset & Typography */
+    :root {
+      --bg-root: #09090b;
+      --bg-surface: #18181b;
+      --bg-subtle: #27272a;
+      --border-subtle: #27272a;
+      --border-strong: #3f3f46;
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent: #10b981; /* Clean Mint */
+      --accent-muted: rgba(16, 185, 129, 0.15);
+      --danger: #ef4444;
+      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --safe-bottom: env(safe-area-inset-bottom, 16px);
+      --safe-top: env(safe-area-inset-top, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-root);
+      color: var(--text-primary);
+      font-family: var(--font-stack);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Fixed App Bar Header */
+    header {
+      padding-top: calc(var(--safe-top) + 12px);
+      padding-bottom: 12px;
+      padding-left: 16px;
+      padding-right: 16px;
+      background-color: var(--bg-root);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    /* Install Banner */
+    #pwa-banner {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 16px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    #pwa-banner button {
+      background-color: var(--accent);
+      color: #000;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    /* Main Content Container (Internal Scroll) */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .view {
+      display: none;
+      padding: 16px;
+      padding-bottom: 100px; /* Space for Bottom Nav */
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* Native Bottom Navigation Bar */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(9, 9, 11, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      padding-top: 8px;
+      padding-bottom: calc(var(--safe-bottom) + 4px);
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 500;
+      background: none;
+      border: none;
+      width: 25%;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: var(--accent);
+    }
+
+    .nav-item svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    /* Native Controls & Lists */
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-top: 16px;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .list-group {
+      background-color: var(--bg-surface);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .list-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 15px;
+    }
+
+    .list-row:last-child {
+      border-bottom: none;
+    }
+
+    .list-row label {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .list-row input, .list-row select {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 15px;
+      font-family: inherit;
+      text-align: right;
+      outline: none;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background-color: var(--text-primary);
+      color: var(--bg-root);
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .btn-primary:active {
+      opacity: 0.8;
+      transform: scale(0.99);
+    }
+
+    /* Native Segmented Control */
+    .segmented-control {
+      display: flex;
+      background-color: var(--bg-surface);
+      padding: 2px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 16px;
+    }
+
+    .segmented-btn {
+      flex: 1;
+      padding: 8px 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .segmented-btn.active {
+      background-color: var(--bg-subtle);
+      color: var(--text-primary);
+    }
+
+    /* Macro Bar Component */
+    .macro-progress {
+      height: 6px;
+      background-color: var(--bg-subtle);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .macro-bar {
+      height: 100%;
+      background-color: var(--accent);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 id="header-title">Split</h1>
+    <span id="header-date" style="font-size: 12px; color: var(--text-muted);">Today</span>
+  </header>
+
+  <!-- PWA Installation Banner for Mobile Chrome -->
+  <div id="pwa-banner">
+    <span>Add Pulse Fitness to Home Screen</span>
+    <button id="pwa-install-btn">Install</button>
+  </div>
+
+  <main>
+    <!-- VIEW 1: WORKOUT SPLIT GENERATOR -->
+    <section id="view-split" class="view active">
+      <div class="section-title">Schedule Preferences</div>
+      <div class="list-group">
+        <div class="list-row">
+          <span>Days Per Week</span>
+          <select id="split-days">
+            <option value="3">3 Days (Full Body / Push-Pull-Legs)</option>
+            <option value="4" selected>4 Days (Upper / Lower)</option>
+            <option value="5">5 Days (Upper / Lower / PPL)</option>
+            <option value="6">6 Days (Push / Pull / Legs x2)</option>
+          </select>
+        </div>
+        <div class="list-row">
+          <span>Primary Focus</span>
+          <select id="split-focus">
+            <option value="hypertrophy">Hypertrophy (Muscle Growth)</option>
+            <option value="strength">Strength (Lower Reps)</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="generateSplit()">Generate Routine</button>
+
+      <div class="section-title">Your Weekly Plan</div>
+      <div id="split-results">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- VIEW 2: DIET & NUTRITION TRACKER -->
+    <section id="view-diet" class="view">
+      <div class="section-title">Daily Nutrition Target</div>
+      <div class="list-group" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span style="font-size: 14px; color: var(--text-secondary);">Calories</span>
+          <span style="font-size: 14px; font-weight: 600;" id="diet-cal-text">1,450 / 2,200 kcal</span>
+        </div>
+        <div class="macro-progress"><div class="macro-bar" id="bar-cal" style="width: 65%;"></div></div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 16px; margin-bottom: 4px;">
+          <span style="font-size: 14px; color: var(--text-secondary);">Protein</span>
+          <span style="font-size: 14px; font-weight: 600;" id="diet-protein-text">110 / 160 g</span>
+        </div>
+        <div class="macro-progress"><div class="macro-bar" id="bar-protein" style="width: 68%; background-color: #3b82f6;"></div></div>
+      </div>
+
+      <div class="section-title">Log Meal</div>
+      <div class="list-group">
+        <div class="list-row">
+          <span>Meal Name</span>
+          <input type="text" id="meal-name" placeholder="Chicken & Rice">
+        </div>
+        <div class="list-row">
+          <span>Calories (kcal)</span>
+          <input type="number" id="meal-cal" placeholder="550">
+        </div>
+        <div class="list-row">
+          <span>Protein (g)</span>
+          <input type="number" id="meal-protein" placeholder="42">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="logMeal()">Add Meal Log</button>
+
+      <div class="section-title">Today's Meals</div>
+      <div class="list-group" id="meal-log-list">
+        <!-- Dynamic Meal List -->
+      </div>
+    </section>
+
+    <!-- VIEW 3: PROGRESS TRACKER -->
+    <section id="view-progress" class="view">
+      <div class="section-title">Body Weight Log</div>
+      <div class="list-group">
+        <div class="list-row">
+          <span>Weight (kg)</span>
+          <input type="number" step="0.1" id="weight-input" placeholder="74.5">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="logWeight()">Record Entry</button>
+
+      <div class="section-title">Weight History</div>
+      <div class="list-group" id="weight-history-list">
+        <!-- Dynamic History -->
+      </div>
+    </section>
+
+    <!-- VIEW 4: SETTINGS & DATA -->
+    <section id="view-settings" class="view">
+      <div class="section-title">Profile Settings</div>
+      <div class="list-group">
+        <div class="list-row">
+          <span>Daily Calorie Target</span>
+          <input type="number" id="set-target-cal" value="2200" onchange="saveSettings()">
+        </div>
+        <div class="list-row">
+          <span>Protein Target (g)</span>
+          <input type="number" id="set-target-protein" value="160" onchange="saveSettings()">
+        </div>
+      </div>
+      <button class="btn-primary" style="background-color: var(--bg-subtle); color: var(--danger);" onclick="clearAllData()">Reset All App Data</button>
+    </section>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav>
+    <button class="nav-item active" onclick="switchTab('split', 'Workout Split')">
+      <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 6.29 3.43 4.86 2 3.43 3.43 2 4.86 3.43 6.29 2 7.71 3.43 9.14 2 10.57 3.43 12 7 20.57 15.57 17 12 20.57 13.43 22 14.86 20.57 16.29 22 17.71 20.57 19.14 22 20.57 20.57 19.14 22 17.71 20.57 16.29z"/></svg>
+      <span>Split</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('diet', 'Diet & Macros')">
+      <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.46 3.9 3.45 4.38l-.95 7.62h2l.95-7.62C10.54 12.9 12 11.12 12 9V2h-1v7zm6-7c-2.21 0-4 1.79-4 4v6c0 1.66 1.34 3 3 3v8h2V2h-1z"/></svg>
+      <span>Diet</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('progress', 'Progress')">
+      <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+      <span>Progress</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('settings', 'Settings')">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <script>
+    // --- PWA MANIFEST DYNAMIC INJECTION ---
+    const manifestData = {
+      name: "Pulse Fitness Tracker",
+      short_name: "Pulse",
+      start_url: ".",
+      display: "standalone",
+      background_color: "#09090b",
+      theme_color: "#09090b",
+      icons: [{
+        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2309090b'/><path d='M30 50L45 65L70 35' stroke='%2310b981' stroke-width='10' fill='none'/></svg>",
+        sizes: "192x192",
+        type: "image/svg+xml"
+      }]
+    };
+    const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
+    document.getElementById('manifest-placeholder').setAttribute('href', URL.createObjectURL(manifestBlob));
+
+    // PWA Install Prompt Capture for Chrome
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('pwa-banner').style.display = 'flex';
+    });
+
+    document.getElementById('pwa-install-btn').addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          document.getElementById('pwa-banner').style.display = 'none';
+          deferredPrompt = null;
+        });
+      }
+    });
+
+    // --- TAB SWITCHING LOGIC ---
+    function switchTab(viewId, title) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      
+      document.getElementById(`view-${viewId}`).classList.add('active');
+      document.getElementById('header-title').innerText = title;
+
+      // Update Nav active button
+      const navs = ['split', 'diet', 'progress', 'settings'];
+      const index = navs.indexOf(viewId);
+      if (index !== -1) {
+        document.querySelectorAll('.nav-item')[index].classList.add('active');
+      }
+    }
+
+    // --- WORKOUT SPLIT GENERATOR LOGIC ---
+    const SPLITS = {
+      "3": [
+        { day: "Day 1", name: "Full Body A", exercises: ["Squat 3x6-8", "Bench Press 3x6-8", "Barbell Row 3x8-10"] },
+        { day: "Day 2", name: "Full Body B", exercises: ["Deadlift 3x5", "Overhead Press 3x6-8", "Pull-ups 3x8-10"] },
+        { day: "Day 3", name: "Full Body C", exercises: ["Romanian Deadlift 3x8-10", "Incline Dumbbell Press 3x8-10", "Lat Pulldown 3x10-12"] }
+      ],
+      "4": [
+        { day: "Day 1", name: "Upper A (Push Focus)", exercises: ["Bench Press 4x6", "Bent Over Row 4x8", "Incline DB Press 3x10", "Lateral Raises 4x12"] },
+        { day: "Day 2", name: "Lower A (Quad Focus)", exercises: ["Barbell Squat 4x6", "Romanian Deadlift 3x8", "Leg Press 3x10", "Calf Raises 4x15"] },
+        { day: "Day 3", name: "Upper B (Pull Focus)", exercises: ["Overhead Press 4x6", "Lat Pulldown 4x8", "Dumbbell Chest Fly 3x12", "Barbell Bicep Curl 3x10"] },
+        { day: "Day 4", name: "Lower B (Hamstring Focus)", exercises: ["Deadlift 3x5", "Bulgarian Split Squat 3x8", "Leg Curl 3x12", "Hanging Leg Raise 3x15"] }
+      ]
+    };
+
+    function generateSplit() {
+      const days = document.getElementById('split-days').value;
+      const routine = SPLITS[days] || SPLITS["4"];
+      const container = document.getElementById('split-results');
+      container.innerHTML = '';
+
+      routine.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'list-group';
+        div.innerHTML = `
+          <div class="list-row" style="background-color: var(--bg-subtle); font-weight: 600;">
+            <span>${item.day} - ${item.name}</span>
+          </div>
+          ${item.exercises.map(e => `<div class="list-row"><span style="color: var(--text-secondary); font-size: 14px;">${e}</span></div>`).join('')}
+        `;
+        container.appendChild(div);
+      });
+
+      localStorage.setItem('saved_split', JSON.stringify(routine));
+    }
+
+    // --- DIET LOGGING ---
+    let dietData = JSON.parse(localStorage.getItem('diet_data')) || { cal: 0, protein: 0, meals: [] };
+
+    function updateDietUI() {
+      const targetCal = parseInt(localStorage.getItem('target_cal') || 2200);
+      const targetProtein = parseInt(localStorage.getItem('target_protein') || 160);
+
+      document.getElementById('diet-cal-text').innerText = `${dietData.cal} / ${targetCal} kcal`;
+      document.getElementById('diet-protein-text').innerText = `${dietData.protein} / ${targetProtein} g`;
+
+      document.getElementById('bar-cal').style.width = `${Math.min((dietData.cal / targetCal) * 100, 100)}%`;
+      document.getElementById('bar-protein').style.width = `${Math.min((dietData.protein / targetProtein) * 100, 100)}%`;
+
+      const mealList = document.getElementById('meal-log-list');
+      mealList.innerHTML = '';
+      dietData.meals.forEach((m, idx) => {
+        const row = document.createElement('div');
+        row.className = 'list-row';
+        row.innerHTML = `
+          <span>${m.name}</span>
+          <span style="font-size: 13px; color: var(--text-muted);">${m.cal} kcal | ${m.protein}g protein</span>
+        `;
+        mealList.appendChild(row);
+      });
+    }
+
+    function logMeal() {
+      const name = document.getElementById('meal-name').value || 'Meal';
+      const cal = parseInt(document.getElementById('meal-cal').value) || 0;
+      const protein = parseInt(document.getElementById('meal-protein').value) || 0;
+
+      if (cal <= 0) return;
+
+      dietData.cal += cal;
+      dietData.protein += protein;
+      dietData.meals.unshift({ name, cal, protein });
+
+      localStorage.setItem('diet_data', JSON.stringify(dietData));
+      updateDietUI();
+
+      document.getElementById('meal-name').value = '';
+      document.getElementById('meal-cal').value = '';
+      document.getElementById('meal-protein').value = '';
+    }
+
+    // --- WEIGHT LOGGING ---
+    let weightHistory = JSON.parse(localStorage.getItem('weight_history')) || [];
+
+    function logWeight() {
+      const val = parseFloat(document.getElementById('weight-input').value);
+      if (!val) return;
+
+      const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      weightHistory.unshift({ date: dateStr, weight: val });
+      localStorage.setItem('weight_history', JSON.stringify(weightHistory));
+      renderWeightHistory();
+      document.getElementById('weight-input').value = '';
+    }
+
+    function renderWeightHistory() {
+      const list = document.getElementById('weight-history-list');
+      list.innerHTML = '';
+      weightHistory.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'list-row';
+        row.innerHTML = `
+          <span>${item.date}</span>
+          <span style="font-weight: 600;">${item.weight} kg</span>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    // --- SETTINGS ---
+    function saveSettings() {
+      localStorage.setItem('target_cal', document.getElementById('set-target-cal').value);
+      localStorage.setItem('target_protein', document.getElementById('set-target-protein').value);
+      updateDietUI();
+    }
+
+    function clearAllData() {
+      if (confirm("Reset all stored workout and diet history?")) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    // Init App
+    window.onload = () => {
+      generateSplit();
+      updateDietUI();
+      renderWeightHistory();
+    };
+  </script>
+</body>
+</html>
