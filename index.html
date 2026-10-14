@@ -128,14 +128,14 @@
       z-index: 1;
     }
 
-    /* Central Body Figure */
+    /* Central Body Figure - REVERTED TO THE PERFECT FIRST VERSION */
     .body-figure {
       position: relative;
       z-index: 5;
-      height: 340px;
+      height: 320px;
       width: 140px;
       margin-top: 30px;
-      opacity: 0.85;
+      opacity: 0.9;
     }
 
     /* Top Goal Pill */
@@ -197,7 +197,6 @@
       transition: transform 0.1s ease, border-color 0.2s ease;
     }
     
-    /* Touch animation for nodes */
     .node:active {
       transform: scale(0.92);
       border-color: rgba(255, 255, 255, 0.5);
@@ -208,7 +207,7 @@
     .node-value { font-size: 22px; font-weight: 700; line-height: 1; pointer-events: none;}
     .node-level { font-size: 10px; color: var(--text-muted); pointer-events: none;}
 
-    /* Precise Node Placements Relative to Container */
+    /* Node Placements */
     .node-chest { top: 50px; left: -10px; }
     .node-back { top: 50px; right: -10px; }
     .node-abs { top: 170px; left: -20px; }
@@ -253,7 +252,7 @@
     .bar:nth-child(2) { height: 65%; }
     .bar:nth-child(3) { height: 40%; }
     .bar:nth-child(4) { height: 75%; }
-    .bar:nth-child(5) { height: 95%; background-color: var(--text-main); } /* Highlighted day */
+    .bar:nth-child(5) { height: 95%; background-color: var(--text-main); }
     .bar:nth-child(6) { height: 60%; }
     .bar:nth-child(7) { height: 35%; }
 
@@ -320,10 +319,9 @@
     </div>
     <div class="goal-label">Goal progress</div>
 
-    <!-- IMPROVED BODY SILHOUETTE -->
-    <!-- (If you want the real 3D image later, replace this <svg>...</svg> block with: <img src="your-image.png" style="height:320px; z-index:5;"> ) -->
-    <svg class="body-figure" viewBox="0 0 200 500" fill="rgba(230, 235, 255, 0.8)">
-      <path d="M100 20 C85 20 75 35 75 55 C75 75 85 85 92 88 C80 90 60 100 50 115 C35 135 25 180 22 220 C20 240 18 260 15 270 L25 275 C28 250 35 180 45 150 L50 200 C50 230 52 280 50 330 C45 420 40 480 35 490 L55 495 C60 480 65 420 70 330 L80 330 C80 350 78 420 75 490 L95 495 C100 480 105 350 105 280 C110 350 115 480 120 495 L140 490 C137 420 135 350 135 330 L145 330 C150 420 155 480 160 495 L180 490 C175 480 170 420 165 330 C163 280 165 230 165 200 L170 150 C180 180 187 250 190 275 L200 270 C197 260 195 240 193 220 C190 180 180 135 165 115 C155 100 135 90 123 88 C130 85 140 75 140 55 C140 35 130 20 115 20 Z"/>
+    <!-- THE PERFECT FIRST SHAPE IS BACK -->
+    <svg class="body-figure" viewBox="0 0 100 250" fill="rgba(255,255,255,0.8)">
+      <path d="M50 10 C45 10 40 15 40 22 C40 28 44 32 48 34 L43 45 C35 48 25 55 20 70 L15 105 L25 110 L30 80 L35 120 L35 240 L45 240 L48 140 L52 140 L55 240 L65 240 L65 120 L70 80 L75 110 L85 105 L80 70 C75 55 65 48 57 45 L52 34 C56 32 60 28 60 22 C60 15 55 10 50 10 Z"/>
     </svg>
 
     <!-- Interactive Nodes -->
